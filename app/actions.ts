@@ -8,6 +8,16 @@ import { dueDateFor, MODULES, requirementMap, type ModuleKey, type RequirementOp
 
 export type ActionState = { error?: string; message?: string };
 
+export async function updateAccountAction(_: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase } = await authenticatedClient();
+  const parsed = z.string().trim().min(2, "Enter your name").max(80, "Keep your name under 80 characters").safeParse(formData.get("fullName"));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check your name" };
+  const { error } = await supabase.auth.updateUser({ data: { full_name: parsed.data } });
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard", "layout");
+  return { message: "Profile updated." };
+}
+
 async function authenticatedClient() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
@@ -110,7 +120,7 @@ export async function configureBusinessAction(_: ActionState, formData: FormData
   const results = await Promise.all(operations);
   const failure = results.find((result) => result.error)?.error;
   if (failure) return { error: failure.message };
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   redirect(`/dashboard?business=${businessId}`);
 }
 
@@ -124,7 +134,7 @@ export async function createSetupItemAction(formData: FormData) {
     due_date: z.string().optional().parse(formData.get("dueDate") || undefined) || null,
   });
   if (error) throw error;
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
 }
 
 export async function updateSetupStatusAction(formData: FormData) {
@@ -133,7 +143,7 @@ export async function updateSetupStatusAction(formData: FormData) {
   const status = z.enum(["Not started", "In progress", "Blocked", "Completed", "Not applicable"]).parse(formData.get("status"));
   const { error } = await supabase.from("setup_items").update({ status }).eq("id", itemId);
   if (error) throw error;
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
 }
 
 export async function createTaskAction(formData: FormData) {
@@ -146,7 +156,7 @@ export async function createTaskAction(formData: FormData) {
     due_date: z.string().optional().parse(formData.get("dueDate") || undefined) || null,
   });
   if (error) throw error;
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
 }
 
 export async function toggleTaskAction(formData: FormData) {
@@ -155,7 +165,7 @@ export async function toggleTaskAction(formData: FormData) {
   const status = z.enum(["To do", "Done"]).parse(formData.get("nextStatus"));
   const { error } = await supabase.from("tasks").update({ status }).eq("id", taskId);
   if (error) throw error;
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
 }
 
 export async function createVendorAction(formData: FormData) {
@@ -169,5 +179,5 @@ export async function createVendorAction(formData: FormData) {
     email: String(formData.get("email") || ""),
   });
   if (error) throw error;
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
 }

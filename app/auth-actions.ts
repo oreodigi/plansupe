@@ -37,6 +37,6 @@ export async function signUpAction(_: ActionState, formData: FormData): Promise<
 
 export async function signOutAction() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "local" });
   redirect("/");
 }
