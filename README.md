@@ -1,30 +1,46 @@
-# PlanSupe MVP
+# PlanSupe
 
-A mobile-first, interactive MVP based on the PlanSupe V1/V2 development plan.
+PlanSupe is a mobile-first business setup workspace. Each user has a private account and can create multiple businesses, generate category-specific setup requirements, track work, manage vendors, and monitor launch readiness and cost.
 
-## Included
+## Product capabilities
 
-- Business dashboard with readiness, budget, committed, paid and outstanding rollups
-- Template-style setup modules and seeded Restaurant/QSR requirements
-- Setup-item creation, status progression and payment recording
-- Tasks with completion state
-- Reusable vendor directory and vendor creation
-- Persistent browser storage so changes survive refreshes
-- Responsive layouts optimized for 360px mobile screens
+- Supabase email/password authentication with server-side sessions
+- Row Level Security so users can access only their own businesses
+- Multi-business onboarding and switching
+- Category-specific setup templates
+- Setup requirement status and cost tracking
+- Business tasks and vendor directory
+- Database-derived readiness, forecast, committed, and paid totals
+- Responsive desktop and 360px mobile application layouts
 
-## Run locally
+## Stack
+
+- Next.js 16 App Router and Server Actions
+- React 19 and TypeScript
+- Supabase Auth and PostgreSQL
+- Vercel hosting
+
+## Local setup
+
+Copy `.env.example` to `.env.local` and provide the Supabase project values:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_replace_me
+```
+
+Then run:
 
 ```powershell
 npm.cmd install
 npm.cmd run dev
 ```
 
-Open the URL printed by Vite. To create a production build:
+Validation:
 
 ```powershell
+npm.cmd run typecheck
 npm.cmd run build
 ```
 
-## Current architecture
-
-This first slice is a browser-persisted product prototype. It validates the core linked-record behavior and mobile UX. Production V1 should replace local storage with the PostgreSQL organization/business model, authenticated server APIs and private object storage described in the source plan.
+Database changes are tracked in `supabase/migrations` and should be applied through the Supabase migration workflow.
