@@ -1,10 +1,5 @@
-"use client";
-
-import { useActionState } from "react";
-import { createBusinessAction } from "@/app/actions";
-import { BUSINESS_CATEGORIES } from "@/lib/templates";
+import { SetupBuilder } from "@/components/setup-builder";
 
 export function Onboarding({ firstName }: { firstName: string }) {
-  const [state, action, pending] = useActionState(createBusinessAction, {});
-  return <main className="container onboarding"><section><p className="kicker">Welcome, {firstName}</p><h1>Let’s set up your first business.</h1><p className="onboarding-copy">Tell us the essentials. PlanSupe will create a practical setup structure for your business category, which you can edit at any time.</p></section><form className="onboarding-form form" action={action}><div className="form-grid"><div className="field full"><label htmlFor="name">Business or brand name</label><input id="name" name="name" required placeholder="e.g. Riverstone Cafe"/></div><div className="field"><label htmlFor="category">Business category</label><select id="category" name="category" required defaultValue=""><option value="" disabled>Choose category</option>{BUSINESS_CATEGORIES.map((category)=><option key={category}>{category}</option>)}</select></div><div className="field"><label htmlFor="stage">Current stage</label><select id="stage" name="stage" defaultValue="Planning"><option>Idea</option><option>Planning</option><option>Pre-launch</option><option>Operating</option></select></div><div className="field"><label htmlFor="city">Operating city</label><input id="city" name="city" required placeholder="Bengaluru"/></div><div className="field"><label htmlFor="budget">Setup budget (INR)</label><input id="budget" name="budget" type="number" min="0" defaultValue="0"/></div><div className="field full"><label htmlFor="launchDate">Target launch date</label><input id="launchDate" name="launchDate" type="date"/></div></div>{state.error&&<div className="form-error" role="alert">{state.error}</div>}<button className="btn primary" disabled={pending}>{pending?"Building your workspace…":"Create business workspace"}</button></form></main>;
+  return <main className="setup-page"><SetupBuilder firstName={firstName}/></main>;
 }

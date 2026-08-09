@@ -41,3 +41,10 @@ export type Vendor = {
   phone: string;
   email: string;
 };
+
+export type BusinessModule = {
+  id: string;
+  business_id: string;
+  module_key: string;
+  sort_order: number;
+};
