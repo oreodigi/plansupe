@@ -59,6 +59,7 @@ export function SetupBuilder({ firstName = "Founder", business, initialModules =
     if (step === 1 && modules.length === 0) { setClientError("Choose at least one module for this business."); return; }
     if (step === 2 && requirements.length === 0) { setClientError("Choose at least one requirement to build your setup plan."); return; }
     setStep((current) => Math.min(3, current + 1));
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
   }
 
   return <form className="setup-builder" action={formAction}>
@@ -86,7 +87,7 @@ export function SetupBuilder({ firstName = "Founder", business, initialModules =
       {(clientError || state.error) && <div className="form-error" role="alert">{clientError || state.error}</div>}
       {state.message && <div className="form-message" role="status">{state.message}</div>}
       <div className="setup-actions">
-        {step > (editing ? 1 : 0) && <button type="button" className="btn secondary" onClick={() => { setClientError(""); setStep((current) => current - 1); }}><ArrowLeft/> Back</button>}
+        {step > (editing ? 1 : 0) && <button type="button" className="btn secondary" onClick={() => { setClientError(""); setStep((current) => current - 1); requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" })); }}><ArrowLeft/> Back</button>}
         {step < 3 ? <button key="continue" type="button" className="btn primary" onClick={(event) => { event.preventDefault(); next(); }}>Continue <ArrowRight/></button> : <button key="save" type="submit" className="btn primary" disabled={pending}>{pending ? "Building your workspace…" : editing ? "Save setup choices" : "Create my workspace"}<CheckCircle weight="fill"/></button>}
       </div>
     </footer>
