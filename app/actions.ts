@@ -61,10 +61,13 @@ function parseSelections(
   modulesJson: string,
   requirementsJson: string,
 ) {
-  const modules = z
+  const selectedModules = z
     .array(moduleSchema)
     .min(1, "Choose at least one module")
     .parse(JSON.parse(modulesJson));
+  const modules = Array.from(
+    new Set<ModuleKey>([...selectedModules, "Assets"]),
+  );
   const requested = z
     .array(z.string())
     .min(1, "Choose at least one requirement")
@@ -195,11 +198,26 @@ export async function configureBusinessAction(
     };
   }
 
-  const { data: existing, error: existingError } = await supabase
-    .from("setup_items")
-    .select("id,module,name,source")
-    .eq("business_id", businessId);
-  if (existingError) return { error: existingError.message };
+  const [existingResult, savedModulesResult] = await Promise.all([
+    supabase
+      .from("setup_items")
+      .select("id,module,name,source")
+      .eq("business_id", businessId),
+    supabase
+      .from("business_modules")
+      .select("module_key,planned_budget")
+      .eq("business_id", businessId),
+  ]);
+  if (existingResult.error) return { error: existingResult.error.message };
+  if (savedModulesResult.error)
+    return { error: savedModulesResult.error.message };
+  const existing = existingResult.data;
+  const savedBudgets = new Map(
+    (savedModulesResult.data ?? []).map((entry) => [
+      entry.module_key,
+      entry.planned_budget,
+    ]),
+  );
   const desiredKeys = new Set(
     selections.requirements.map((entry) => `${entry.module}::${entry.title}`),
   );
@@ -235,6 +253,7 @@ export async function configureBusinessAction(
         business_id: businessId,
         module_key: module,
         sort_order: sortOrder,
+        planned_budget: savedBudgets.get(module) ?? null,
       })),
     ),
     additions.length
@@ -406,6 +425,36 @@ export async function updateSetupStatusAction(formData: FormData) {
     .eq("id", itemId);
   if (error) throw error;
   revalidatePath("/dashboard", "layout");
+}
+
+const moduleBudgetSchema = z.object({
+  businessId: z.string().uuid(),
+  module: moduleSchema,
+  plannedBudget: z.coerce.number().min(0, "Planned cost cannot be negative"),
+});
+
+export async function updateModuleBudgetAction(
+  _: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { supabase } = await authenticatedClient();
+  const parsed = moduleBudgetSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? "Check the planned cost",
+    };
+  }
+  const { businessId, module, plannedBudget } = parsed.data;
+  const { data, error } = await supabase
+    .from("business_modules")
+    .update({ planned_budget: plannedBudget })
+    .eq("business_id", businessId)
+    .eq("module_key", module)
+    .select("id")
+    .single();
+  if (error || !data) return { error: "This module could not be updated." };
+  revalidatePath("/dashboard", "layout");
+  return { message: "Planned cost updated." };
 }
 
 const setupItemDetailsSchema = z

@@ -50,7 +50,7 @@ export async function getBusinessData(requestedId?: string) {
         .order("created_at", { ascending: false }),
       supabase
         .from("business_modules")
-        .select("id,business_id,module_key,sort_order")
+        .select("id,business_id,module_key,sort_order,planned_budget")
         .eq("business_id", business.id)
         .order("sort_order"),
     ]);

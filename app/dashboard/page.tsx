@@ -60,10 +60,18 @@ export default async function DashboardPage({
   const progress = result.items.length
     ? Math.round((completed / result.items.length) * 100)
     : 0;
-  const estimated = result.items.reduce(
+  const requirementsEstimate = result.items.reduce(
     (sum, item) => sum + Number(item.estimated_cost || 0),
     0,
   );
+  const estimated = result.businessModules.length
+    ? result.businessModules.reduce((sum, module) => {
+        const moduleRequirements = result.items
+          .filter((item) => item.module === module.module_key)
+          .reduce((total, item) => total + Number(item.estimated_cost || 0), 0);
+        return sum + Number(module.planned_budget ?? moduleRequirements);
+      }, 0)
+    : requirementsEstimate;
   const currency = result.business.currency || "INR";
 
   return (

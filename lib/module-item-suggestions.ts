@@ -70,6 +70,18 @@ const baseSuggestions: Record<ModuleKey, string[]> = {
     "SEO setup",
     "Opening event",
   ],
+  Assets: [
+    "Computer or laptop",
+    "Printer",
+    "Business phone",
+    "Furniture",
+    "Kitchen equipment",
+    "Tools and machinery",
+    "Company vehicle",
+    "POS equipment",
+    "CCTV system",
+    "Air conditioner",
+  ],
 };
 
 const categorySuggestions: Record<
@@ -223,4 +235,5 @@ export const moduleItemLabels: Record<ModuleKey, string> = {
   Branding: "branding item or service",
   Operations: "operational item or service",
   Marketing: "marketing activity or service",
+  Assets: "asset",
 };

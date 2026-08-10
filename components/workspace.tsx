@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Buildings, Check, CheckSquare, ClipboardText, Gear, House, IdentificationCard,
-  MapPin, Megaphone, PaintBrush, Plus, SignOut, Storefront, Toolbox, UsersThree, Wallet, X,
+  MapPin, Megaphone, Package, PaintBrush, Plus, SignOut, Storefront, Toolbox, UsersThree, Wallet, X,
 } from "@phosphor-icons/react";
 import { createSetupItemAction, createTaskAction, createVendorAction, toggleTaskAction, updateSetupStatusAction } from "@/app/actions";
 import { signOutAction } from "@/app/auth-actions";
@@ -14,7 +14,7 @@ import type { Business, BusinessModule, BusinessTask, SetupItem, Vendor } from "
 
 type View = "overview" | "setup" | "tasks" | "vendors";
 type Modal = "item" | "task" | "vendor" | null;
-const moduleIcons = { Licenses: IdentificationCard, Location: MapPin, Interiors: PaintBrush, Equipment: Toolbox, Staff: UsersThree, Branding: Storefront, Operations: Gear, Marketing: Megaphone } as const;
+const moduleIcons = { Licenses: IdentificationCard, Location: MapPin, Interiors: PaintBrush, Equipment: Toolbox, Staff: UsersThree, Branding: Storefront, Operations: Gear, Marketing: Megaphone, Assets: Package } as const;
 const currency = (value: number, code: string) => new Intl.NumberFormat("en-IN", { style: "currency", currency: code, maximumFractionDigits: 0 }).format(value);
 
 type WorkspaceProps = {

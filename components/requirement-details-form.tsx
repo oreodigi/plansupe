@@ -37,13 +37,14 @@ export function RequirementDetailsForm({
     initialState,
   );
   const assignedVendor = vendors.find((vendor) => vendor.id === item.vendor_id);
+  const itemTerm = item.module === "Assets" ? "asset" : "requirement";
   const formatter = new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: currency || "INR",
     maximumFractionDigits: 0,
   });
   const shareText = [
-    `PlanSupe requirement for ${businessName}`,
+    `PlanSupe ${itemTerm} for ${businessName}`,
     `${item.module}: ${item.name}`,
     `Status: ${item.status}`,
     `Planned cost: ${formatter.format(Number(item.estimated_cost || 0))}`,
@@ -59,7 +60,7 @@ export function RequirementDetailsForm({
       <summary>
         <span className="requirement-details-title">
           <PencilSimple size={18} weight="duotone" />
-          Edit requirement
+          Edit {itemTerm}
         </span>
         <span className="requirement-details-preview">
           {formatter.format(

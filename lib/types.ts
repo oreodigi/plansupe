@@ -49,4 +49,5 @@ export type BusinessModule = {
   business_id: string;
   module_key: string;
   sort_order: number;
+  planned_budget: number | null;
 };

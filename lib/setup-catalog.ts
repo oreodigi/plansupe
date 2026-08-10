@@ -39,6 +39,11 @@ export const MODULES = [
     label: "Marketing",
     short: "Audience, channels and launch campaign",
   },
+  {
+    key: "Assets",
+    label: "Assets",
+    short: "Everything your business owns and uses",
+  },
 ] as const;
 
 export type ModuleKey = (typeof MODULES)[number]["key"];
@@ -296,6 +301,7 @@ const core: Record<ModuleKey, ItemInput[]> = {
       "Essential",
     ),
   ],
+  Assets: [],
 };
 
 const categoryExtras: Record<

@@ -9,6 +9,7 @@ import {
 import { notFound, redirect } from "next/navigation";
 import { AppFrame } from "@/components/app-frame";
 import { AddModuleItemForm } from "@/components/add-module-item-form";
+import { ModuleBudgetForm } from "@/components/module-budget-form";
 import { RequirementDetailsForm } from "@/components/requirement-details-form";
 import {
   addCatalogRequirementAction,
@@ -67,6 +68,12 @@ export default async function ModulePage({
     (sum, item) => sum + Number(item.estimated_cost || 0),
     0,
   );
+  const activeBusinessModule = result.businessModules.find(
+    (entry) => entry.module_key === key,
+  );
+  const editablePlanned = Number(
+    activeBusinessModule?.planned_budget ?? planned,
+  );
   const catalog = requirementMap(result.business.category);
   const selectedSources = new Set(items.map((item) => item.source));
   const recommendations = requirementsFor(result.business.category, key).filter(
@@ -114,20 +121,19 @@ export default async function ModulePage({
         <div>
           <small>Needs attention</small>
           <b>{blocked}</b>
-          <span>Blocked requirements</span>
+              <span>{key === "Assets" ? "Blocked assets" : "Blocked requirements"}</span>
         </div>
-        <div>
-          <small>Total planned cost</small>
-          <b>
-            {new Intl.NumberFormat("en-IN", {
-              style: "currency",
-              currency: result.business.currency || "INR",
-              maximumFractionDigits: 0,
-            }).format(planned)}
-          </b>
-          <span>
-            Based on {items.length} requirement{items.length === 1 ? "" : "s"}
-          </span>
+        <div className="module-budget-summary">
+          <ModuleBudgetForm
+            businessId={result.business.id}
+            module={key}
+            currency={result.business.currency}
+            plannedBudget={editablePlanned}
+            requirementsTotal={planned}
+            totalLabel={
+              key === "Assets" ? "Assets total" : "Requirements total"
+            }
+          />
         </div>
       </section>
       {key === "Licenses" && (
@@ -145,8 +151,12 @@ export default async function ModulePage({
       )}
       <div className="section-heading">
         <div>
-          <h2>Requirements</h2>
-          <p>Update each status as you move toward launch.</p>
+          <h2>{key === "Assets" ? "Asset register" : "Requirements"}</h2>
+          <p>
+            {key === "Assets"
+              ? "Add everything the business owns and track its cost and vendor."
+              : "Update each status as you move toward launch."}
+          </p>
         </div>
         <span className="count-pill">{items.length} items</span>
       </div>
@@ -154,8 +164,12 @@ export default async function ModulePage({
         {items.length === 0 && (
           <div className="empty-state">
             <CheckCircle size={34} weight="duotone" />
-            <h3>No requirements yet</h3>
-            <p>Add your first requirement below.</p>
+            <h3>
+              {key === "Assets" ? "No assets yet" : "No requirements yet"}
+            </h3>
+            <p>
+              Add your first {key === "Assets" ? "asset" : "requirement"} below.
+            </p>
           </div>
         )}
         {items.map((item) => {

@@ -15,6 +15,7 @@ import {
   MapPin,
   Megaphone,
   PaintBrush,
+  Package,
   Storefront,
   Toolbox,
   UsersThree,
@@ -42,7 +43,10 @@ const moduleIcons = {
   Branding: Storefront,
   Operations: GearSix,
   Marketing: Megaphone,
+  Assets: Package,
 } as const;
+
+const setupModules = MODULES.filter((module) => module.key !== "Assets");
 
 type Basics = {
   name: string;
@@ -86,11 +90,14 @@ export function SetupBuilder({
     budget: String(business?.budget ?? ""),
     launchDate: business?.launch_date ?? "",
   });
-  const [modules, setModules] = useState<ModuleKey[]>(initialModules);
+  const planningModules = initialModules.filter(
+    (module) => module !== "Assets",
+  );
+  const [modules, setModules] = useState<ModuleKey[]>(planningModules);
   const [requirements, setRequirements] =
     useState<string[]>(initialRequirements);
   const [activeModule, setActiveModule] = useState<ModuleKey | null>(
-    initialModules[0] ?? null,
+    planningModules[0] ?? null,
   );
   const [clientError, setClientError] = useState("");
 
@@ -430,7 +437,7 @@ function ModulesStep({
         <span className="selection-badge">{selected.length} selected</span>
       </div>
       <div className="module-selector">
-        {MODULES.map((module, index) => {
+        {setupModules.map((module, index) => {
           const Icon = moduleIcons[module.key];
           const checked = selected.includes(module.key);
           return (
@@ -558,9 +565,9 @@ function RequirementsStep({
                     </em>
                   </span>
                   {option.sourceUrl && (
-                      <span className="official-source">
-                        Official guidance available
-                      </span>
+                    <span className="official-source">
+                      Official guidance available
+                    </span>
                   )}
                 </span>
               </button>
