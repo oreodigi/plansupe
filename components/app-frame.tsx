@@ -7,10 +7,12 @@ import {
   House,
   List,
   ListChecks,
+  Plus,
   SignOut,
   SquaresFour,
   Storefront,
   UserCircle,
+  UsersThree,
   X,
 } from "@phosphor-icons/react";
 import { Logo } from "@/components/logo";
@@ -18,9 +20,20 @@ import { signOutAction } from "@/app/auth-actions";
 import type { Business, BusinessModule } from "@/lib/types";
 
 const nav = [
-  { href: "/dashboard", label: "Home", icon: House },
-  { href: "/dashboard/tasks", label: "Tasks", icon: ListChecks },
-  { href: "/dashboard/vendors", label: "Vendors", icon: Storefront },
+  { href: "/dashboard", label: "Home", icon: House, mobile: true },
+  { href: "/dashboard/tasks", label: "Tasks", icon: ListChecks, mobile: true },
+  {
+    href: "/dashboard/vendors",
+    label: "Vendors",
+    icon: Storefront,
+    mobile: true,
+  },
+  {
+    href: "/dashboard/team",
+    label: "Team",
+    icon: UsersThree,
+    mobile: false,
+  },
 ];
 
 export function AppFrame({
@@ -95,7 +108,7 @@ export function AppFrame({
             ))}
           </nav>
           <div className="topbar-tools">
-            {businesses.length > 1 && (
+            <div className="business-tools">
               <label className="business-switcher">
                 <span>Business</span>
                 <select
@@ -114,7 +127,15 @@ export function AppFrame({
                   ))}
                 </select>
               </label>
-            )}
+              <Link
+                className="new-business-button"
+                href="/dashboard/businesses/new"
+                aria-label="Add another business"
+                title="Add another business"
+              >
+                <Plus size={18} weight="bold" />
+              </Link>
+            </div>
             <Link
               className={`account-chip ${pathname.startsWith("/dashboard/account") ? "active" : ""}`}
               href={`/dashboard/account${businessQuery}`}
@@ -208,6 +229,20 @@ export function AppFrame({
             Vendor directory
           </Link>
           <Link
+            href={`/dashboard/team${businessQuery}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            <UsersThree size={19} />
+            Team members
+          </Link>
+          <Link
+            href="/dashboard/businesses/new"
+            onClick={() => setMenuOpen(false)}
+          >
+            <Plus size={19} />
+            Add another business
+          </Link>
+          <Link
             href={`/dashboard/account${businessQuery}`}
             onClick={() => setMenuOpen(false)}
           >
@@ -218,16 +253,18 @@ export function AppFrame({
       </aside>
       <main className="app-content">{children}</main>
       <nav className="mobile-nav" aria-label="Mobile navigation">
-        {nav.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            className={active(href) ? "active" : ""}
-            href={`${href}${businessQuery}`}
-          >
-            <Icon size={22} weight={active(href) ? "fill" : "regular"} />
-            <span>{label}</span>
-          </Link>
-        ))}
+        {nav
+          .filter((item) => item.mobile)
+          .map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              className={active(href) ? "active" : ""}
+              href={`${href}${businessQuery}`}
+            >
+              <Icon size={22} weight={active(href) ? "fill" : "regular"} />
+              <span>{label}</span>
+            </Link>
+          ))}
         <Link
           className={pathname.startsWith("/dashboard/account") ? "active" : ""}
           href={`/dashboard/account${businessQuery}`}

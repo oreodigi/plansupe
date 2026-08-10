@@ -597,3 +597,58 @@ export async function createVendorAction(formData: FormData) {
   if (error) throw error;
   revalidatePath("/dashboard", "layout");
 }
+
+const teamMemberSchema = z.object({
+  businessId: z.string().uuid(),
+  email: z.string().trim().email("Enter a valid email address"),
+});
+
+export async function addTeamMemberAction(
+  _: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { supabase } = await authenticatedClient();
+  const parsed = teamMemberSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Check the email" };
+  }
+
+  const { data, error } = await supabase.rpc("add_business_team_member", {
+    p_business_id: parsed.data.businessId,
+    p_email: parsed.data.email,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/team");
+  if (data === "added")
+    return { message: "Team member added. They can open this business now." };
+  if (data === "already_member")
+    return { message: "This person is already on the team." };
+  return {
+    message:
+      "Invitation saved. They will join automatically after signing up with this email.",
+  };
+}
+
+export async function removeTeamMemberAction(formData: FormData) {
+  const { supabase, user } = await authenticatedClient();
+  const businessId = z.string().uuid().parse(formData.get("businessId"));
+  const memberId = z.string().uuid().parse(formData.get("memberId"));
+
+  const { data: ownedBusiness, error: ownerError } = await supabase
+    .from("businesses")
+    .select("id")
+    .eq("id", businessId)
+    .eq("owner_id", user.id)
+    .single();
+  if (ownerError || !ownedBusiness)
+    throw new Error("Only the business owner can remove team members.");
+
+  const { error } = await supabase
+    .from("business_members")
+    .delete()
+    .eq("id", memberId)
+    .eq("business_id", businessId);
+  if (error) throw error;
+  revalidatePath("/dashboard/team");
+}

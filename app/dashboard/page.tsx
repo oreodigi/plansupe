@@ -91,13 +91,19 @@ export default async function DashboardPage({
             you need attention.
           </p>
         </div>
-        <Link
-          className="btn secondary"
-          href={`/dashboard/configure?business=${result.business.id}`}
-        >
-          <Plus size={18} weight="bold" />
-          Change modules
-        </Link>
+        <div className="dashboard-head-actions">
+          <Link className="btn secondary" href="/dashboard/businesses/new">
+            <Plus size={18} weight="bold" />
+            Add business
+          </Link>
+          <Link
+            className="btn secondary"
+            href={`/dashboard/configure?business=${result.business.id}`}
+          >
+            <Plus size={18} weight="bold" />
+            Change modules
+          </Link>
+        </div>
       </section>
 
       <section className="readiness-card">

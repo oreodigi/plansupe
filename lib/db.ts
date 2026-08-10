@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type {
   Business,
+  BusinessMember,
   BusinessModule,
   BusinessTask,
   SetupItem,
@@ -9,10 +10,12 @@ import type {
 
 export async function getBusinessData(requestedId?: string) {
   const supabase = await createClient();
+  const { error: claimError } = await supabase.rpc("claim_my_business_invites");
+  if (claimError) throw claimError;
   const { data: businesses, error } = await supabase
     .from("businesses")
     .select(
-      "id,name,category,stage,city,currency,budget,launch_date,created_at",
+      "id,owner_id,name,category,stage,city,currency,budget,launch_date,created_at",
     )
     .is("archived_at", null)
     .order("created_at", { ascending: false });
@@ -66,4 +69,17 @@ export async function getBusinessData(requestedId?: string) {
     vendors: (vendorsResult.data ?? []) as Vendor[],
     businessModules: (modulesResult.data ?? []) as BusinessModule[],
   };
+}
+
+export async function getBusinessTeam(businessId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("business_members")
+    .select(
+      "id,business_id,user_id,email,display_name,role,accepted_at,created_at",
+    )
+    .eq("business_id", businessId)
+    .order("created_at");
+  if (error) throw error;
+  return (data ?? []) as BusinessMember[];
 }

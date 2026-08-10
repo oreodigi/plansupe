@@ -1,10 +1,12 @@
 import {
   Buildings,
   Envelope,
+  Plus,
   ShieldCheck,
   SignOut,
   UserCircle,
 } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppFrame } from "@/components/app-frame";
 import { AccountForm } from "@/components/account-form";
@@ -78,7 +80,7 @@ export default async function AccountPage({
           <SecurityForm />
         </section>
         <section className="content-card">
-          <div className="account-title">
+          <div className="account-title account-businesses-title">
             <span>
               <Buildings size={28} weight="duotone" />
             </span>
@@ -90,10 +92,14 @@ export default async function AccountPage({
                 account.
               </p>
             </div>
+            <Link className="btn secondary" href="/dashboard/businesses/new">
+              <Plus size={17} weight="bold" />
+              Add business
+            </Link>
           </div>
           <div className="business-list">
             {result.businesses.map((business) => (
-              <a
+              <Link
                 href={`/dashboard?business=${business.id}`}
                 key={business.id}
                 className={business.id === result.business!.id ? "active" : ""}
@@ -105,8 +111,12 @@ export default async function AccountPage({
                     {business.category} · {business.city}
                   </small>
                 </div>
-                {business.id === result.business!.id && <em>Current</em>}
-              </a>
+                {business.id === result.business!.id ? (
+                  <em>Current</em>
+                ) : business.owner_id !== data.user.id ? (
+                  <em>Shared</em>
+                ) : null}
+              </Link>
             ))}
           </div>
         </section>

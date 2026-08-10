@@ -1,5 +1,6 @@
 export type Business = {
   id: string;
+  owner_id: string;
   name: string;
   category: string;
   stage: string;
@@ -7,6 +8,17 @@ export type Business = {
   currency: string;
   budget: number;
   launch_date: string | null;
+  created_at: string;
+};
+
+export type BusinessMember = {
+  id: string;
+  business_id: string;
+  user_id: string | null;
+  email: string;
+  display_name: string;
+  role: "Collaborator";
+  accepted_at: string | null;
   created_at: string;
 };
 
