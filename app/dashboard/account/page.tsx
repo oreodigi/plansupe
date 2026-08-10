@@ -1,12 +1,14 @@
 import {
   Buildings,
   Envelope,
+  ShieldCheck,
   SignOut,
   UserCircle,
 } from "@phosphor-icons/react/dist/ssr";
 import { redirect } from "next/navigation";
 import { AppFrame } from "@/components/app-frame";
 import { AccountForm } from "@/components/account-form";
+import { SecurityForm } from "@/components/security-form";
 import { signOutAction } from "@/app/auth-actions";
 import { getBusinessData } from "@/lib/db";
 import { createClient } from "@/lib/supabase/server";
@@ -62,6 +64,18 @@ export default async function AccountPage({
               <b>{data.user.email}</b>
             </div>
           </div>
+        </section>
+        <section className="content-card security-card">
+          <div className="account-title">
+            <span>
+              <ShieldCheck size={28} weight="duotone" />
+            </span>
+            <div>
+              <h2>Password &amp; security</h2>
+              <p>Update your password or request a secure reset link.</p>
+            </div>
+          </div>
+          <SecurityForm />
         </section>
         <section className="content-card">
           <div className="account-title">

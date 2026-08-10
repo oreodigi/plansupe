@@ -331,9 +331,13 @@ export async function updateSetupStatusAction(formData: FormData) {
 const setupItemDetailsSchema = z
   .object({
     itemId: z.string().uuid(),
-    estimatedCost: z.coerce
-      .number()
-      .min(0, "Estimated cost cannot be negative"),
+    name: z
+      .string()
+      .trim()
+      .min(2, "Enter a requirement name")
+      .max(140, "Keep the requirement name under 140 characters"),
+    dueDate: z.union([z.string().date(), z.literal("")]),
+    estimatedCost: z.coerce.number().min(0, "Planned cost cannot be negative"),
     committedCost: z.coerce.number().min(0, "Agreed cost cannot be negative"),
     paidAmount: z.coerce.number().min(0, "Paid amount cannot be negative"),
     vendorId: z.union([z.string().uuid(), z.literal("")]),
@@ -355,8 +359,15 @@ export async function updateSetupItemDetailsAction(
     };
   }
 
-  const { itemId, estimatedCost, committedCost, paidAmount, vendorId } =
-    parsed.data;
+  const {
+    itemId,
+    name,
+    dueDate,
+    estimatedCost,
+    committedCost,
+    paidAmount,
+    vendorId,
+  } = parsed.data;
   const { data: item, error: itemError } = await supabase
     .from("setup_items")
     .select("business_id")
@@ -379,6 +390,8 @@ export async function updateSetupItemDetailsAction(
   const { error } = await supabase
     .from("setup_items")
     .update({
+      name,
+      due_date: dueDate || null,
       estimated_cost: estimatedCost,
       committed_cost: committedCost,
       paid_amount: paidAmount,
@@ -387,7 +400,24 @@ export async function updateSetupItemDetailsAction(
     .eq("id", itemId);
   if (error) return { error: error.message };
   revalidatePath("/dashboard", "layout");
-  return { message: "Pricing and vendor saved." };
+  return { message: "Requirement updated." };
+}
+
+export async function deleteSetupItemAction(formData: FormData) {
+  const { supabase } = await authenticatedClient();
+  const itemId = z.string().uuid().parse(formData.get("itemId"));
+  const { data: item, error: itemError } = await supabase
+    .from("setup_items")
+    .select("id")
+    .eq("id", itemId)
+    .single();
+  if (itemError || !item) throw new Error("Requirement not found");
+  const { error } = await supabase
+    .from("setup_items")
+    .delete()
+    .eq("id", itemId);
+  if (error) throw error;
+  revalidatePath("/dashboard", "layout");
 }
 
 export async function createTaskAction(formData: FormData) {

@@ -2219,6 +2219,12 @@ body.drawer-open {
   gap: 13px;
   padding: 13px 0 3px;
 }
+.requirement-main-fields {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.36fr);
+  gap: 9px;
+}
 .pricing-fields {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2229,6 +2235,9 @@ body.drawer-open {
   gap: 6px;
 }
 .requirement-details-form label > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   color: var(--muted);
   font-size: 10px;
   font-weight: 700;
@@ -2269,6 +2278,17 @@ body.drawer-open {
 }
 .requirement-details-actions .btn {
   min-height: 44px;
+}
+.whatsapp-button {
+  background: oklch(93% 0.06 155);
+  border: 1px solid oklch(83% 0.09 155);
+  color: oklch(38% 0.1 155);
+  text-decoration: none;
+}
+.delete-requirement {
+  background: oklch(96% 0.025 25);
+  border: 1px solid oklch(88% 0.055 25);
+  color: var(--danger);
 }
 .add-panel {
   margin-top: 14px;
@@ -2520,6 +2540,31 @@ body.drawer-open {
 .account-form {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--line);
+}
+.security-settings {
+  display: grid;
+  gap: 16px;
+}
+.security-settings .account-form {
+  gap: 12px;
+}
+.reset-password-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.reset-password-row b {
+  font-size: 13px;
+}
+.reset-password-row p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.reset-password-row .btn {
+  min-height: 44px;
+  white-space: nowrap;
 }
 .form-message {
   margin: 0;
@@ -2802,6 +2847,9 @@ body.drawer-open {
   .requirement-row .requirement-details-form {
     grid-template-columns: 1fr;
   }
+  .requirement-main-fields {
+    grid-template-columns: 1fr;
+  }
   .pricing-fields {
     grid-template-columns: 1fr 1fr;
   }
@@ -2816,6 +2864,13 @@ body.drawer-open {
   }
   .requirement-details-actions .form-message {
     margin: 0;
+  }
+  .reset-password-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .reset-password-row .btn {
+    width: 100%;
   }
   .recommendation-grid {
     grid-template-columns: 1fr;

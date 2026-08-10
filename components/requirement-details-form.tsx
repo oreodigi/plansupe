@@ -2,8 +2,19 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { CaretDown, Coins, Storefront } from "@phosphor-icons/react";
-import { updateSetupItemDetailsAction, type ActionState } from "@/app/actions";
+import {
+  CaretDown,
+  Coins,
+  PencilSimple,
+  Storefront,
+  Trash,
+  WhatsappLogo,
+} from "@phosphor-icons/react";
+import {
+  deleteSetupItemAction,
+  updateSetupItemDetailsAction,
+  type ActionState,
+} from "@/app/actions";
 import type { SetupItem, Vendor } from "@/lib/types";
 
 const initialState: ActionState = {};
@@ -13,11 +24,13 @@ export function RequirementDetailsForm({
   vendors,
   currency,
   businessId,
+  businessName,
 }: {
   item: SetupItem;
   vendors: Vendor[];
   currency: string;
   businessId: string;
+  businessName: string;
 }) {
   const [state, action, pending] = useActionState(
     updateSetupItemDetailsAction,
@@ -29,13 +42,24 @@ export function RequirementDetailsForm({
     currency: currency || "INR",
     maximumFractionDigits: 0,
   });
+  const shareText = [
+    `PlanSupe requirement for ${businessName}`,
+    `${item.module}: ${item.name}`,
+    `Status: ${item.status}`,
+    `Planned cost: ${formatter.format(Number(item.estimated_cost || 0))}`,
+    `Agreed cost: ${formatter.format(Number(item.committed_cost || 0))}`,
+    `Paid: ${formatter.format(Number(item.paid_amount || 0))}`,
+    item.due_date ? `Due date: ${item.due_date}` : "Due date: Not set",
+    `Vendor: ${assignedVendor?.name || "Not assigned"}`,
+  ].join("\n");
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
 
   return (
     <details className="requirement-details">
       <summary>
         <span className="requirement-details-title">
-          <Coins size={18} weight="duotone" />
-          Pricing &amp; vendor
+          <PencilSimple size={18} weight="duotone" />
+          Edit requirement
         </span>
         <span className="requirement-details-preview">
           {formatter.format(
@@ -47,9 +71,31 @@ export function RequirementDetailsForm({
       </summary>
       <form action={action} className="requirement-details-form">
         <input type="hidden" name="itemId" value={item.id} />
+        <div className="requirement-main-fields">
+          <label>
+            <span>Requirement name</span>
+            <input
+              name="name"
+              defaultValue={item.name}
+              minLength={2}
+              maxLength={140}
+              required
+            />
+          </label>
+          <label>
+            <span>Due date</span>
+            <input
+              name="dueDate"
+              type="date"
+              defaultValue={item.due_date || ""}
+            />
+          </label>
+        </div>
         <div className="pricing-fields">
           <label>
-            <span>Estimated</span>
+            <span>
+              <Coins size={14} /> Planned cost
+            </span>
             <input
               name="estimatedCost"
               type="number"
@@ -107,8 +153,31 @@ export function RequirementDetailsForm({
           {state.message && (
             <p className="form-message success">{state.message}</p>
           )}
+          <a
+            className="btn whatsapp-button"
+            href={whatsappUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Share ${item.name} on WhatsApp`}
+          >
+            <WhatsappLogo size={18} weight="fill" />
+            Share
+          </a>
+          <button
+            className="btn delete-requirement"
+            formAction={deleteSetupItemAction}
+            onClick={(event) => {
+              if (
+                !window.confirm(`Delete “${item.name}”? This cannot be undone.`)
+              ) {
+                event.preventDefault();
+              }
+            }}
+          >
+            <Trash size={17} /> Delete
+          </button>
           <button className="btn primary" disabled={pending}>
-            {pending ? "Saving…" : "Save pricing & vendor"}
+            {pending ? "Saving…" : "Save changes"}
           </button>
         </div>
       </form>

@@ -113,7 +113,7 @@ export default async function ModulePage({
           <span>Blocked requirements</span>
         </div>
         <div>
-          <small>Planned cost</small>
+          <small>Total planned cost</small>
           <b>
             {new Intl.NumberFormat("en-IN", {
               style: "currency",
@@ -121,7 +121,9 @@ export default async function ModulePage({
               maximumFractionDigits: 0,
             }).format(planned)}
           </b>
-          <span>Across this module</span>
+          <span>
+            Based on {items.length} requirement{items.length === 1 ? "" : "s"}
+          </span>
         </div>
       </section>
       {key === "Licenses" && (
@@ -223,6 +225,7 @@ export default async function ModulePage({
                 vendors={result.vendors}
                 currency={result.business!.currency}
                 businessId={result.business!.id}
+                businessName={result.business!.name}
               />
             </article>
           );
@@ -301,7 +304,7 @@ export default async function ModulePage({
           </label>
           <div className="form-grid">
             <label>
-              <span>Estimated cost</span>
+              <span>Planned cost</span>
               <input name="estimate" type="number" min="0" placeholder="0" />
             </label>
             <label>
