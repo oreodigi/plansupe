@@ -20,6 +20,7 @@ export type SetupItem = {
   committed_cost: number;
   paid_amount: number;
   due_date: string | null;
+  source: string;
 };
 
 export type BusinessTask = {
