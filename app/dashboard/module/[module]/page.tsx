@@ -8,14 +8,18 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { notFound, redirect } from "next/navigation";
 import { AppFrame } from "@/components/app-frame";
+import { AddModuleItemForm } from "@/components/add-module-item-form";
 import { RequirementDetailsForm } from "@/components/requirement-details-form";
 import {
   addCatalogRequirementAction,
-  createSetupItemAction,
   updateSetupStatusAction,
 } from "@/app/actions";
 import { getBusinessData } from "@/lib/db";
 import { moduleUi } from "@/lib/module-ui";
+import {
+  moduleItemLabels,
+  moduleItemSuggestions,
+} from "@/lib/module-item-suggestions";
 import {
   MODULES,
   requirementMap,
@@ -231,6 +235,15 @@ export default async function ModulePage({
           );
         })}
       </section>
+      <AddModuleItemForm
+        businessId={result.business.id}
+        businessCategory={result.business.category}
+        module={key}
+        itemLabel={moduleItemLabels[key]}
+        suggestions={moduleItemSuggestions(result.business.category, key)}
+        vendors={result.vendors}
+        currency={result.business.currency}
+      />
       {recommendations.length > 0 && (
         <section className="recommendation-panel">
           <div className="section-heading">
@@ -285,36 +298,6 @@ export default async function ModulePage({
           </div>
         </section>
       )}
-      <details className="add-panel">
-        <summary>
-          <Plus size={19} weight="bold" />
-          Add a custom requirement
-        </summary>
-        <form action={createSetupItemAction}>
-          <input type="hidden" name="businessId" value={result.business.id} />
-          <input type="hidden" name="module" value={key} />
-          <label>
-            <span>Requirement</span>
-            <input
-              name="name"
-              placeholder={`e.g. Confirm ${key.toLowerCase()} supplier`}
-              minLength={2}
-              required
-            />
-          </label>
-          <div className="form-grid">
-            <label>
-              <span>Planned cost</span>
-              <input name="estimate" type="number" min="0" placeholder="0" />
-            </label>
-            <label>
-              <span>Due date</span>
-              <input name="dueDate" type="date" />
-            </label>
-          </div>
-          <button className="btn primary">Add requirement</button>
-        </form>
-      </details>
     </AppFrame>
   );
 }

@@ -271,6 +271,86 @@ export async function createSetupItemAction(formData: FormData) {
   revalidatePath("/dashboard", "layout");
 }
 
+const detailedSetupItemSchema = z
+  .object({
+    businessId: z.string().uuid(),
+    module: moduleSchema,
+    name: z
+      .string()
+      .trim()
+      .min(2, "Enter an item name")
+      .max(140, "Keep the item name under 140 characters"),
+    plannedCost: z.coerce.number().min(0, "Planned cost cannot be negative"),
+    committedCost: z.coerce.number().min(0, "Agreed cost cannot be negative"),
+    paidAmount: z.coerce.number().min(0, "Paid amount cannot be negative"),
+    dueDate: z.union([z.string().date(), z.literal("")]),
+    vendorId: z.union([z.string().uuid(), z.literal("")]),
+  })
+  .refine((values) => values.paidAmount <= values.committedCost, {
+    message: "Paid amount cannot be more than the agreed cost",
+    path: ["paidAmount"],
+  });
+
+export async function createDetailedSetupItemAction(
+  _: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { supabase } = await authenticatedClient();
+  const parsed = detailedSetupItemSchema.safeParse(
+    Object.fromEntries(formData),
+  );
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? "Check the item details",
+    };
+  }
+  const {
+    businessId,
+    module,
+    name,
+    plannedCost,
+    committedCost,
+    paidAmount,
+    dueDate,
+    vendorId,
+  } = parsed.data;
+  const { data: selectedModule, error: moduleError } = await supabase
+    .from("business_modules")
+    .select("id")
+    .eq("business_id", businessId)
+    .eq("module_key", module)
+    .single();
+  if (moduleError || !selectedModule) {
+    return { error: "This module is not available for the selected business." };
+  }
+
+  if (vendorId) {
+    const { data: vendor, error: vendorError } = await supabase
+      .from("vendors")
+      .select("id")
+      .eq("id", vendorId)
+      .eq("business_id", businessId)
+      .single();
+    if (vendorError || !vendor)
+      return { error: "Choose a vendor from this business." };
+  }
+
+  const { error } = await supabase.from("setup_items").insert({
+    business_id: businessId,
+    module,
+    name,
+    estimated_cost: plannedCost,
+    committed_cost: committedCost,
+    paid_amount: paidAmount,
+    due_date: dueDate || null,
+    vendor_id: vendorId || null,
+    source: "custom",
+  });
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard", "layout");
+  return { message: `${name} added.` };
+}
+
 export async function addCatalogRequirementAction(formData: FormData) {
   const { supabase } = await authenticatedClient();
   const businessId = z.string().uuid().parse(formData.get("businessId"));

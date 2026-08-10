@@ -2311,6 +2311,58 @@ body.drawer-open {
   display: grid;
   gap: 13px;
 }
+.module-item-builder {
+  margin-top: 28px;
+  border-style: solid;
+  border-color: color-mix(in oklch, var(--brand) 35%, var(--line));
+}
+.item-builder-intro {
+  display: grid;
+  gap: 11px;
+  padding: 0 0 16px;
+}
+.item-builder-intro > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.suggestion-chips button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in oklch, var(--brand) 28%, var(--line));
+  border-radius: 11px;
+  background: white;
+  color: var(--brand-deep);
+  font-size: 11px;
+  font-weight: 700;
+}
+.suggestion-chips button:hover {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+.item-builder-pricing label > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.item-builder-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.item-builder-actions .form-message {
+  margin-right: auto;
+}
+.item-builder-actions .btn {
+  min-height: 46px;
+}
 .recommendation-panel {
   margin-top: 34px;
   padding-top: 1px;
@@ -2417,7 +2469,9 @@ body.drawer-open {
 .content-card input,
 .content-card select,
 .add-panel input,
+.add-panel select,
 .account-form input {
+  width: 100%;
   min-height: 44px;
   padding: 0 12px;
   border: 1px solid var(--line);
@@ -2863,6 +2917,22 @@ body.drawer-open {
     width: 100%;
   }
   .requirement-details-actions .form-message {
+    margin: 0;
+  }
+  .suggestion-chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .suggestion-chips button {
+    text-align: left;
+  }
+  .item-builder-actions {
+    display: grid;
+  }
+  .item-builder-actions .btn {
+    width: 100%;
+  }
+  .item-builder-actions .form-message {
     margin: 0;
   }
   .reset-password-row {
