@@ -34,7 +34,7 @@ export async function getBusinessData(requestedId?: string) {
       supabase
         .from("setup_items")
         .select(
-          "id,business_id,module,name,status,estimated_cost,committed_cost,paid_amount,due_date,source",
+          "id,business_id,module,name,status,estimated_cost,committed_cost,paid_amount,vendor_id,due_date,source",
         )
         .eq("business_id", business.id)
         .order("created_at", { ascending: false }),

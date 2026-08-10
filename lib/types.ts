@@ -19,6 +19,7 @@ export type SetupItem = {
   estimated_cost: number;
   committed_cost: number;
   paid_amount: number;
+  vendor_id: string | null;
   due_date: string | null;
   source: string;
 };

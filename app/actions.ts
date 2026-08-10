@@ -138,15 +138,13 @@ export async function createBusinessAction(
   }));
   const [{ error: itemError }, { error: moduleError }] = await Promise.all([
     supabase.from("setup_items").insert(items),
-    supabase
-      .from("business_modules")
-      .insert(
-        selections.modules.map((module, sortOrder) => ({
-          business_id: business.id,
-          module_key: module,
-          sort_order: sortOrder,
-        })),
-      ),
+    supabase.from("business_modules").insert(
+      selections.modules.map((module, sortOrder) => ({
+        business_id: business.id,
+        module_key: module,
+        sort_order: sortOrder,
+      })),
+    ),
   ]);
   if (itemError || moduleError) {
     await supabase.from("businesses").delete().eq("id", business.id);
@@ -232,15 +230,13 @@ export async function configureBusinessAction(
     .eq("business_id", businessId);
   if (clearModulesError) return { error: clearModulesError.message };
   const operations = [
-    supabase
-      .from("business_modules")
-      .insert(
-        selections.modules.map((module, sortOrder) => ({
-          business_id: businessId,
-          module_key: module,
-          sort_order: sortOrder,
-        })),
-      ),
+    supabase.from("business_modules").insert(
+      selections.modules.map((module, sortOrder) => ({
+        business_id: businessId,
+        module_key: module,
+        sort_order: sortOrder,
+      })),
+    ),
     additions.length
       ? supabase.from("setup_items").insert(additions)
       : Promise.resolve({ error: null }),
@@ -330,6 +326,68 @@ export async function updateSetupStatusAction(formData: FormData) {
     .eq("id", itemId);
   if (error) throw error;
   revalidatePath("/dashboard", "layout");
+}
+
+const setupItemDetailsSchema = z
+  .object({
+    itemId: z.string().uuid(),
+    estimatedCost: z.coerce
+      .number()
+      .min(0, "Estimated cost cannot be negative"),
+    committedCost: z.coerce.number().min(0, "Agreed cost cannot be negative"),
+    paidAmount: z.coerce.number().min(0, "Paid amount cannot be negative"),
+    vendorId: z.union([z.string().uuid(), z.literal("")]),
+  })
+  .refine((values) => values.paidAmount <= values.committedCost, {
+    message: "Paid amount cannot be more than the agreed cost",
+    path: ["paidAmount"],
+  });
+
+export async function updateSetupItemDetailsAction(
+  _: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { supabase } = await authenticatedClient();
+  const parsed = setupItemDetailsSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? "Check the pricing details",
+    };
+  }
+
+  const { itemId, estimatedCost, committedCost, paidAmount, vendorId } =
+    parsed.data;
+  const { data: item, error: itemError } = await supabase
+    .from("setup_items")
+    .select("business_id")
+    .eq("id", itemId)
+    .single();
+  if (itemError || !item)
+    return { error: "This requirement could not be opened." };
+
+  if (vendorId) {
+    const { data: vendor, error: vendorError } = await supabase
+      .from("vendors")
+      .select("id")
+      .eq("id", vendorId)
+      .eq("business_id", item.business_id)
+      .single();
+    if (vendorError || !vendor)
+      return { error: "Choose a vendor from this business." };
+  }
+
+  const { error } = await supabase
+    .from("setup_items")
+    .update({
+      estimated_cost: estimatedCost,
+      committed_cost: committedCost,
+      paid_amount: paidAmount,
+      vendor_id: vendorId || null,
+    })
+    .eq("id", itemId);
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard", "layout");
+  return { message: "Pricing and vendor saved." };
 }
 
 export async function createTaskAction(formData: FormData) {

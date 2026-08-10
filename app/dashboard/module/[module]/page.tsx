@@ -8,6 +8,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { notFound, redirect } from "next/navigation";
 import { AppFrame } from "@/components/app-frame";
+import { RequirementDetailsForm } from "@/components/requirement-details-form";
 import {
   addCatalogRequirementAction,
   createSetupItemAction,
@@ -77,6 +78,7 @@ export default async function ModulePage({
     <AppFrame
       businesses={result.businesses}
       business={result.business}
+      businessModules={result.businessModules}
       name={fullName}
       email={data.user.email || ""}
     >
@@ -216,6 +218,12 @@ export default async function ModulePage({
                 </select>
                 <button className="btn save-status">Save</button>
               </form>
+              <RequirementDetailsForm
+                item={item}
+                vendors={result.vendors}
+                currency={result.business!.currency}
+                businessId={result.business!.id}
+              />
             </article>
           );
         })}
